@@ -33,33 +33,36 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
     
     @IBAction func readCSVFile(_ sender: NSButton) {
-        guard CheckConfigManager.checkConfigReadySuccess() else {
-            return
-        }
-        /* 读取 CSV 文件并赋值到文本框里面 */
-        self.csvTextFiled.stringValue = FileKit.getFile(fileType: "csv")
-        /* 执行异步解析 */
-        parse(parse: { 
-            DispatchQueue.main.async {
-                do {
-                    /* 尝试解析读取到的 CSV 文件 */
-                    try self.csvParse.parse(file: self.csvTextFiled.stringValue)
-                    /* 如果不报异常 则代表可以刷新表格 */
-                    self.canReadloadData = true
-                } catch {
-                    /* 如果报异常则不能刷新表格 并提示用户 CSV 文件错误 */
-                    self.canReadloadData = false
-                    DispatchQueue.main.sync {
-                        let alert = NSAlert()
-                        alert.messageText = "CSV 文件错误"
-                        alert.runModal()
+        print(" =====> \(Thread.current)")
+        DispatchQueue.main.async {
+            guard CheckConfigManager.checkConfigReadySuccess() else {
+                return
+            }
+            /* 读取 CSV 文件并赋值到文本框里面 */
+            self.csvTextFiled.stringValue = FileKit.getFile(fileType: "csv")
+            /* 执行异步解析 */
+            self.parse(parse: {
+                DispatchQueue.main.async {
+                    do {
+                        /* 尝试解析读取到的 CSV 文件 */
+                        try self.csvParse.parse(file: self.csvTextFiled.stringValue)
+                        /* 如果不报异常 则代表可以刷新表格 */
+                        self.canReadloadData = true
+                    } catch {
+                        /* 如果报异常则不能刷新表格 并提示用户 CSV 文件错误 */
+                        self.canReadloadData = false
+                        DispatchQueue.main.async {
+                            let alert = NSAlert()
+                            alert.messageText = "CSV 文件错误"
+                            alert.runModal()
+                        }
                     }
                 }
-            }
-        }) {
-            /* 如果解析完毕 并且可以刷新表格就刷新表格 */
-            if self.canReadloadData {
-                self.tableView.reloadData()
+            }) {
+                /* 如果解析完毕 并且可以刷新表格就刷新表格 */
+                if self.canReadloadData {
+                    self.tableView.reloadData()
+                }
             }
         }
     }

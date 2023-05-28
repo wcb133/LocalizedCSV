@@ -42,9 +42,11 @@ class FindLocalizeStringController: NSViewController, NSTableViewDataSource {
         }
         /* 查找管理器查找一组最新的数据回调 */
         findKit.updateCompletion = { key, value in
-            self.keys.append(key)
-            self.tableView.reloadData()
-            self.countLabel.stringValue = "\(self.keys.count)"
+            DispatchQueue.main.async {
+                self.keys.append(key)
+                self.tableView.reloadData()
+                self.countLabel.stringValue = "\(self.keys.count)"
+            }
         }
         DispatchQueue.global().async {
             FindLocalizeStringKit.shareManager().findAllLocalizeString(path: path)
