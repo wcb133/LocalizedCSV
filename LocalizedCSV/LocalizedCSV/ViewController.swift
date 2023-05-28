@@ -83,7 +83,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.localizeStringTextFiled.stringValue = FileKit.getFile(fileType: "strings")
         try? LocalizeStringKit.shareManager().parse(filePath: self.localizeStringTextFiled.stringValue)
         var stringList = self.localizeStringTextFiled.stringValue.components(separatedBy: "/")
+        if(stringList.isEmpty) {
+            return
+        }
         stringList.removeLast()
+        if(stringList.isEmpty) {
+            return
+        }
         stringList.removeLast()
         SettingModel.shareSettingModel().projectRootPath = stringList.joined(separator: "/")
         print(SettingModel.shareSettingModel().projectRootPath!)
